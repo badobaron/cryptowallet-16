@@ -11,9 +11,9 @@ import CoreData
 
 class CoinViewController: UITableViewController, UISearchBarDelegate {
     
-    var CoinTableView = [Any]()
-    var currentTableView = [Any]()
-    var searchController : UISearchController!
+    public var CoinTableView = [Any]()
+    public var currentTableView = [Any]()
+    public var searchController : UISearchController!
     
     let managedContext = DataManager().objectContext
     
