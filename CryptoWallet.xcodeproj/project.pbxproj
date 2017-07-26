@@ -94,13 +94,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		250E761B1F23973F004EEE52 /* View */ = {
+		250E761B1F23973F004EEE52 /* Views */ = {
 			isa = PBXGroup;
 			children = (
 				25B592841F22628500CC472B /* LaunchScreen.storyboard */,
 				25B5927C1F22628500CC472B /* Main.storyboard */,
 			);
-			name = View;
+			name = Views;
 			sourceTree = "<group>";
 		};
 		250E761D1F23978F004EEE52 /* Model */ = {
@@ -138,7 +138,7 @@
 			children = (
 				25DA65AD1F24025D0073973B /* CryptoPlatform */,
 				25DA65AA1F23E04A0073973B /* Controller */,
-				250E761B1F23973F004EEE52 /* View */,
+				250E761B1F23973F004EEE52 /* Views */,
 				25B592781F22628500CC472B /* AppDelegate.swift */,
 				25B592821F22628500CC472B /* Assets.xcassets */,
 				25B592871F22628500CC472B /* Info.plist */,

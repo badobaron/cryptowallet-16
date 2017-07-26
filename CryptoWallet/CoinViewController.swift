@@ -36,7 +36,7 @@ class CoinViewController: UITableViewController, UISearchBarDelegate {
         tableView.tableHeaderView = searchController.searchBar
         
         // completion to get the result from the poloniex api request
-        getReturnTicker{coinArray, connect in
+        poloniex.getReturnTicker{coinArray, connect in
             if connect{
                 self.navigationController?.navigationBar.topItem?.title = "Saving"
                 self.CoinTableView = coinArray!
