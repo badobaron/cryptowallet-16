@@ -5,4 +5,6 @@ use_frameworks!
 target "CryptoWallet" do
     pod 'Alamofire'
     pod 'SwiftyJSON'
+    pod 'TWMessageBarManager'
+    pod 'DGElasticPullToRefresh'
 end

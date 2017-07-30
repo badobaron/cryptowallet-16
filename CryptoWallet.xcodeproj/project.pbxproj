@@ -11,6 +11,10 @@
 		25292C241F22759C00B507AB /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 25292C231F22759C00B507AB /* Alamofire.framework */; };
 		253C35AF1F293CFF000D5569 /* test.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 253C35AD1F293CFF000D5569 /* test.storyboard */; };
 		253C35B11F293E23000D5569 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 253C35B01F293E23000D5569 /* MainViewController.swift */; };
+		254404EB1F2A7AFE00F6AA7E /* CoinMarketCap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 254404EA1F2A7AFE00F6AA7E /* CoinMarketCap.swift */; };
+		254404ED1F2A7CD300F6AA7E /* CoinMC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 254404EC1F2A7CD300F6AA7E /* CoinMC.swift */; };
+		254404F01F2A81E100F6AA7E /* CMKTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 254404EE1F2A81E100F6AA7E /* CMKTableViewController.swift */; };
+		254404F31F2A821700F6AA7E /* listCoinMarketCap.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 254404F21F2A821700F6AA7E /* listCoinMarketCap.storyboard */; };
 		25B592791F22628500CC472B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25B592781F22628500CC472B /* AppDelegate.swift */; };
 		25B5927E1F22628500CC472B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 25B5927C1F22628500CC472B /* Main.storyboard */; };
 		25B592811F22628500CC472B /* CryptoWallet.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 25B5927F1F22628500CC472B /* CryptoWallet.xcdatamodeld */; };
@@ -48,6 +52,10 @@
 		25292C231F22759C00B507AB /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = "../../../../Library/Developer/Xcode/DerivedData/CryptoWallet-ayuqzgwcuzlzfsgoejczynrzcqiq/Build/Products/Debug-iphonesimulator/Alamofire/Alamofire.framework"; sourceTree = "<group>"; };
 		253C35AE1F293CFF000D5569 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/test.storyboard; sourceTree = "<group>"; };
 		253C35B01F293E23000D5569 /* MainViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
+		254404EA1F2A7AFE00F6AA7E /* CoinMarketCap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoinMarketCap.swift; sourceTree = "<group>"; };
+		254404EC1F2A7CD300F6AA7E /* CoinMC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoinMC.swift; sourceTree = "<group>"; };
+		254404EE1F2A81E100F6AA7E /* CMKTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CMKTableViewController.swift; sourceTree = "<group>"; };
+		254404F21F2A821700F6AA7E /* listCoinMarketCap.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = listCoinMarketCap.storyboard; sourceTree = "<group>"; };
 		25B592751F22628500CC472B /* CryptoWallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CryptoWallet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		25B592781F22628500CC472B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		25B5927D1F22628500CC472B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -102,6 +110,7 @@
 				25B592841F22628500CC472B /* LaunchScreen.storyboard */,
 				25B5927C1F22628500CC472B /* Main.storyboard */,
 				253C35AD1F293CFF000D5569 /* test.storyboard */,
+				254404F21F2A821700F6AA7E /* listCoinMarketCap.storyboard */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -110,6 +119,7 @@
 			isa = PBXGroup;
 			children = (
 				250E761E1F23A843004EEE52 /* Coin.swift */,
+				254404EC1F2A7CD300F6AA7E /* CoinMC.swift */,
 			);
 			name = Models;
 			sourceTree = "<group>";
@@ -200,6 +210,7 @@
 			children = (
 				25DA65AB1F23E0610073973B /* CoinViewController.swift */,
 				253C35B01F293E23000D5569 /* MainViewController.swift */,
+				254404EE1F2A81E100F6AA7E /* CMKTableViewController.swift */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -208,6 +219,7 @@
 			isa = PBXGroup;
 			children = (
 				25DA65AE1F2402800073973B /* Poloniex.swift */,
+				254404EA1F2A7AFE00F6AA7E /* CoinMarketCap.swift */,
 			);
 			name = API;
 			sourceTree = "<group>";
@@ -342,6 +354,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				25B592861F22628500CC472B /* LaunchScreen.storyboard in Resources */,
+				254404F31F2A821700F6AA7E /* listCoinMarketCap.storyboard in Resources */,
 				25B592831F22628500CC472B /* Assets.xcassets in Resources */,
 				253C35AF1F293CFF000D5569 /* test.storyboard in Resources */,
 				25B5927E1F22628500CC472B /* Main.storyboard in Resources */,
@@ -421,7 +434,10 @@
 				25DA65AF1F2402800073973B /* Poloniex.swift in Sources */,
 				25B592811F22628500CC472B /* CryptoWallet.xcdatamodeld in Sources */,
 				25DA65B31F2530C90073973B /* DataManager.swift in Sources */,
+				254404EB1F2A7AFE00F6AA7E /* CoinMarketCap.swift in Sources */,
 				250E761F1F23A843004EEE52 /* Coin.swift in Sources */,
+				254404F01F2A81E100F6AA7E /* CMKTableViewController.swift in Sources */,
+				254404ED1F2A7CD300F6AA7E /* CoinMC.swift in Sources */,
 				25DA65AC1F23E0610073973B /* CoinViewController.swift in Sources */,
 				25DA65B51F2531060073973B /* FileManager.swift in Sources */,
 				253C35B11F293E23000D5569 /* MainViewController.swift in Sources */,

@@ -57,7 +57,7 @@ class CoinViewController: UITableViewController, UISearchBarDelegate {
                 }
             }else{
                 print("fetching")
-                self.navigationController?.navigationBar.topItem?.title = "Fetching"
+                /*self.navigationController?.navigationBar.topItem?.title = "Fetching"
                 // fetching all the songs from CoreData
                 let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "AllCoins")
                 
@@ -66,7 +66,7 @@ class CoinViewController: UITableViewController, UISearchBarDelegate {
                     self.CoinTableView = coins as! [NSManagedObject]
                 } catch let error as NSError {
                     print("Could not fetch \(error), \(error.userInfo)")
-                }
+                }*/
             }
         }
     }
