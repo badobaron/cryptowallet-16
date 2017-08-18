@@ -1,24 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="P8q-ss-VZf">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
     <dependencies>
+        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--test-->
-        <scene sceneID="oo7-2F-mNa">
+        <!--MyCoins-->
+        <scene sceneID="RlB-Mo-8Qr">
             <objects>
-                <viewControllerPlaceholder storyboardName="test" id="sAs-H2-ZzU" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Item" id="tdz-Aw-EKI"/>
+                <viewControllerPlaceholder storyboardName="MyCoins" id="cJj-rP-TJE" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Item" id="qTV-2y-9dk"/>
                 </viewControllerPlaceholder>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="7WX-zw-FVf" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="oZa-4i-vih" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1029" y="-437"/>
+            <point key="canvasLocation" x="1147" y="-440"/>
         </scene>
-        <!--listCoinMarketCap-->
+        <!--CoinList-->
         <scene sceneID="2to-PE-zkW">
             <objects>
-                <viewControllerPlaceholder storyboardName="listCoinMarketCap" id="6Jh-ii-LBT" sceneMemberID="viewController">
+                <viewControllerPlaceholder storyboardName="CoinList" id="6Jh-ii-LBT" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" tag="1" title="Coins" image="TabBarCoinList" id="W6j-rG-bpK"/>
                 </viewControllerPlaceholder>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="kME-Hg-Zas" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -35,7 +39,7 @@
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     </tabBar>
                     <connections>
-                        <segue destination="sAs-H2-ZzU" kind="relationship" relationship="viewControllers" id="Qaq-ed-AXU"/>
+                        <segue destination="cJj-rP-TJE" kind="relationship" relationship="viewControllers" id="3uh-5D-oIZ"/>
                         <segue destination="6Jh-ii-LBT" kind="relationship" relationship="viewControllers" id="cuR-PJ-dj5"/>
                     </connections>
                 </tabBarController>
