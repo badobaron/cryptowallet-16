@@ -1,0 +1,21 @@
+PODS:
+  - Alamofire (4.5.0)
+  - DGElasticPullToRefresh (1.1)
+  - SwiftyJSON (3.1.4)
+  - TWMessageBarManager (1.8.1)
+
+DEPENDENCIES:
+  - Alamofire
+  - DGElasticPullToRefresh
+  - SwiftyJSON
+  - TWMessageBarManager
+
+SPEC CHECKSUMS:
+  Alamofire: f28cdffd29de33a7bfa022cbd63ae95a27fae140
+  DGElasticPullToRefresh: 28f11a6026302a90f8ffebbc6e24748e584dddd3
+  SwiftyJSON: c2842d878f95482ffceec5709abc3d05680c0220
+  TWMessageBarManager: fd84e7948ba7968a2b5d9454859135761214ec56
+
+PODFILE CHECKSUM: 1b4bb3089d900e99f0ea212cf88dca7c88b1c53e
+
+COCOAPODS: 1.2.1
