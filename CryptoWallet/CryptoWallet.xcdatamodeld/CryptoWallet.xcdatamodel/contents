@@ -15,11 +15,16 @@
         <attribute name="percentChange1h" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="percentChange7d" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="percentChange24h" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="rank" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="sortOrder" optional="YES" attributeType="Integer 32" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="totalSupply" optional="YES" attributeType="Double" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="usd" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
     </entity>
+    <entity name="ImageCoin" representedClassName="ImageCoin" syncable="YES" codeGenerationType="class"/>
+    <entity name="Transaction" representedClassName="Transaction" syncable="YES" codeGenerationType="class"/>
     <elements>
-        <element name="Coins" positionX="-63" positionY="-18" width="128" height="300"/>
+        <element name="Coins" positionX="-63" positionY="-18" width="128" height="315"/>
+        <element name="Transaction" positionX="-63" positionY="108" width="128" height="45"/>
+        <element name="ImageCoin" positionX="-54" positionY="126" width="128" height="45"/>
     </elements>
 </model>

@@ -6,15 +6,16 @@
 //  Copyright © 2017 Romain Brunie. All rights reserved.
 //
 
+import UIKit
+
 class Coin {
-    var Id: Int?
+    var Rank: Int?
     var ImageUrl: String?
+    var Image: UIImage?
     var Name: String?
     var FullName: String?
-    var BTC: Double?
     var EUR: Double?
     var USD: Double?
-    var SortOrder: Int?
     var available_supply: Double?
     var total_supply: Double?
     var percent_change_1h: Double?
@@ -25,15 +26,14 @@ class Coin {
     var h24_volume_usd: Double?
     var h24_volume_eur: Double?
     
-    init(Id: Int?, ImageUrl: String?, Name: String?, FullName: String?, BTC: Double?, EUR: Double?, USD: Double?, SortOrder: Int?, available_supply: Double?, total_supply: Double?, percent_change_1h: Double?, percent_change_24h: Double?, percent_change_7d: Double?, market_cap_eur: Double?, market_cap_usd: Double?, h24_volume_usd: Double?, h24_volume_eur: Double?) {
-        self.Id = Id
+    init(Rank: Int?, Image: UIImage?, ImageUrl: String?, Name: String?, FullName: String?, EUR: Double?, USD: Double?, available_supply: Double?, total_supply: Double?, percent_change_1h: Double?, percent_change_24h: Double?, percent_change_7d: Double?, market_cap_eur: Double?, market_cap_usd: Double?, h24_volume_usd: Double?, h24_volume_eur: Double?) {
+        self.Rank = Rank
+        self.Image = Image
         self.ImageUrl = ImageUrl
         self.Name = Name
         self.FullName = FullName
-        self.BTC = BTC
         self.EUR = EUR
         self.USD = USD
-        self.SortOrder = SortOrder
         self.available_supply = available_supply
         self.total_supply = total_supply
         self.percent_change_1h = percent_change_1h

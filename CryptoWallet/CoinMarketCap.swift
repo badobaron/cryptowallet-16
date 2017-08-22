@@ -45,18 +45,17 @@ class CoinMarketCap: NSObject{
     
     class func parseData(obj: JSON) -> Coin{
         return Coin(
-            Id : nil,
+            Rank: Int(obj["rank"].stringValue),
+            Image: nil,
             ImageUrl : nil,
             Name : obj["symbol"].stringValue,
             FullName : obj["name"].stringValue,
-            BTC : Double(obj["price_btc"].stringValue),
             EUR : Double(obj["price_eur"].stringValue),
             USD : Double(obj["price_usd"].stringValue),
-            SortOrder: nil,
             available_supply : Double(obj["available_supply"].stringValue),
             total_supply : Double(obj["total_supply"].stringValue),
             percent_change_1h : Double(obj["percent_change_1h"].stringValue),
-            percent_change_24h : Double(obj["percent_change_24h"].stringValue),
+            percent_change_24h : Double(obj["percent_change_24h"].stringValue) ?? 0,
             percent_change_7d : Double(obj["percent_change_7d"].stringValue),
             market_cap_eur : Double(obj["market_cap_eur"].stringValue),
             market_cap_usd : Double(obj["market_cap_usd"].stringValue),
@@ -64,5 +63,4 @@ class CoinMarketCap: NSObject{
             h24_volume_eur : Double(obj["24h_volume_eur"].stringValue)
         )
     }
-    
 }

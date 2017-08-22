@@ -10,41 +10,101 @@ import UIKit
 
 class SetUpTransactionTableViewController: UITableViewController {
     
+    var datePicker = UIDatePicker()
+    
+    @IBOutlet weak var CurrencyLabel: UILabel!
+    @IBOutlet weak var EditTextDate: UITextField!
+    @IBOutlet weak var PickExchangeTitle: UIButton!
+    @IBAction func PickExchange(_ sender: UIButton) {
+        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { action in
+            
+        }
+        alertController.addAction(cancelAction)
+        
+        let CoinBaseAction = UIAlertAction(title: "Coinbase", style: .default) { action in
+            self.PickExchangeTitle.setTitle("Coinbase", for: .normal)
+            self.PickExchangeTitle.titleLabel?.font = UIFont(name: "transaction", size: 12.0)
+        }
+        alertController.addAction(CoinBaseAction)
+        
+        let PoloniexAction = UIAlertAction(title: "Poloniex", style: .default) { action in
+            self.PickExchangeTitle.setTitle("Poloniex", for: .normal)
+            self.PickExchangeTitle.titleLabel?.font = UIFont(name: "transaction", size: 12.0)
+        }
+        alertController.addAction(PoloniexAction)
+        
+        self.present(alertController, animated: true) {
+            // ...
+        }
+    }
+    
     //  song object sent from the SearchTableViewController through the segue
     var FullName = String()
+    
+    // number of rows per section
+    var rows: [Int] = [3, 2, 1]
 
     @IBOutlet weak var TradePriceTextField: UITextField!
     @IBAction func SaveTransactionButton(_ sender: UIBarButtonItem) {
-        print(self.TradePriceTextField.text)
+        print(self.TradePriceTextField.text ?? "error")
     }
+    
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        self.title = FullName
+        CurrencyLabel.text = FullName
+        
+        //print("FullName = \(FullName)")
+        //print("CurrencyLabel.text = \(CurrencyLabel.text)")
+        
+        createDatePicker()
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
         // self.navigationItem.rightBarButtonItem = self.editButtonItem()
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    
+    func createDatePicker(){
+        datePicker.datePickerMode = .date
+        
+        let toolbar = UIToolbar()
+        toolbar.sizeToFit()
+        
+        let confirmButton = UIBarButtonItem(barButtonSystemItem: .save, target: self, action: #selector(confirmDate))
+        let cancelButton = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancelDate))
+        toolbar.setItems([cancelButton, confirmButton], animated: true)
+        EditTextDate.inputAccessoryView = toolbar
+        
+        EditTextDate.inputView = datePicker
     }
-
+    
+    func confirmDate(){
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "YYYY-MM-dd"
+        EditTextDate.text = dateFormatter.string(from: datePicker.date)
+        EditTextDate.endEditing(true)
+    }
+    
+    func cancelDate(){
+        EditTextDate.endEditing(true)
+    }
+    
     // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {
         // #warning Incomplete implementation, return the number of sections
-        return 1
+        return 3
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return 2
+        return rows[section]
     }
+    
 
     /*
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {

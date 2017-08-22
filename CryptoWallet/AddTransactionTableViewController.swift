@@ -160,11 +160,11 @@ class AddTransactionTableViewController: UITableViewController, UISearchBarDeleg
         // Pass the selected object to the new view controller.
         if segue.identifier == "coinTransaction" {
             if let indexPath = tableView.indexPathForSelectedRow {
+                print("indexPath = \(indexPath)")
+                let destinationNavigationController = segue.destination as! SetUpTransactionTableViewController
+                //let targetController = destinationNavigationController.topViewController as! SetUpTransactionTableViewController
                 
-                let destinationNavigationController = segue.destination as! UINavigationController
-                let targetController = destinationNavigationController.topViewController as! SetUpTransactionTableViewController
-                
-                targetController.FullName = ((CoinTableView[indexPath.row] as? Coin)?.FullName)!
+                destinationNavigationController.FullName = ((CoinTableView[indexPath.row] as? Coin)?.FullName)!
             }
         }
     }

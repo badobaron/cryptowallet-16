@@ -19,9 +19,78 @@ class CoinListTableViewController: UITableViewController, UISearchBarDelegate {
     var sharedInstance = TWMessageBarManager()
     let managedContext = DataManager().objectContext
     var Song = [NSManagedObject]()
+    @IBOutlet weak var syncButtonOutlet: UIBarButtonItem!
+    
+    @IBAction func syncImagesCoinAction(_ sender: UIBarButtonItem) {
+        currentTableView = CoinTableView
+        currentTableView.remove(at: 0)
+        self.startAnimation()
+        CryptoCompare.getUrlImage(ListCoin: currentTableView as! [Coin], completion: { newListCoin, connect in
+            if connect {
+                self.CoinTableView = newListCoin!
+                self.createTitleCell()
+                self.stopAnimation()
+                self.tableView.reloadData()
+            }
+        })
+    }
     
     //  activity indicator view
     weak var activityIndicatorView: UIActivityIndicatorView!
+    
+    @IBAction func rankSorting(_ sender: UIButton) {
+        CoinTableView.remove(at: 0)
+        if (CoinTableView as! [Coin])[0].Rank! < 5 {
+            currentTableView = (CoinTableView as! [Coin]).sorted(by: { $0.Rank! > $1.Rank! })
+        } else {
+            currentTableView = (CoinTableView as! [Coin]).sorted(by: { $0.Rank! < $1.Rank! })
+        }
+        CoinTableView = currentTableView
+        createTitleCell()
+        self.tableView.reloadData()
+    }
+    
+    @IBAction func nameSorting(_ sender: UIButton) {
+        CoinTableView.remove(at: 0)
+        let startIndex = (CoinTableView as! [Coin])[0].FullName!.characters.startIndex
+        let firstCharacter = ((CoinTableView as! [Coin])[0].FullName!)[startIndex]
+        if (firstCharacter == "Z"){
+            currentTableView = (CoinTableView as! [Coin]).sorted(by: { $0.FullName!.lowercased() < $1.FullName!.lowercased() })
+        } else {
+            currentTableView = (CoinTableView as! [Coin]).sorted(by: { $0.FullName!.lowercased() > $1.FullName!.lowercased() })
+        }
+        CoinTableView = currentTableView
+        createTitleCell()
+        self.tableView.reloadData()
+    }
+    
+    @IBAction func priceSorting(_ sender: UIButton) {
+        CoinTableView.remove(at: 0)
+        if (CoinTableView as! [Coin])[0].EUR! < 1 {
+            currentTableView = (CoinTableView as! [Coin]).sorted(by: { $0.EUR! > $1.EUR! })
+        } else {
+            currentTableView = (CoinTableView as! [Coin]).sorted(by: { $0.EUR! < $1.EUR! })
+        }
+        CoinTableView = currentTableView
+        createTitleCell()
+        self.tableView.reloadData()
+    }
+    
+    @IBAction func h24Sorting(_ sender: UIButton) {
+        CoinTableView.remove(at: 0)
+        print("cc = \((CoinTableView as! [Coin])[0].percent_change_24h!)")
+        if (CoinTableView as! [Coin])[0].percent_change_24h! < 0 {
+            currentTableView = (CoinTableView as! [Coin]).sorted(by: { $0.percent_change_24h! >= $1.percent_change_24h! })
+        } else {
+            currentTableView = (CoinTableView as! [Coin]).sorted(by: { $0.percent_change_24h! <= $1.percent_change_24h! })
+        }
+        CoinTableView = currentTableView
+        createTitleCell()
+        self.tableView.reloadData()
+    }
+    
+    
+    
     
     deinit {
         tableView.dg_removePullToRefresh()
@@ -30,6 +99,8 @@ class CoinListTableViewController: UITableViewController, UISearchBarDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        
+        
         //  creating activity indicator view
         let activityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.gray)
         tableView.backgroundView = activityIndicatorView
@@ -37,7 +108,7 @@ class CoinListTableViewController: UITableViewController, UISearchBarDelegate {
         
         // I init here the reloading system of the table view
         let loadingView = DGElasticPullToRefreshLoadingViewCircle()
-        loadingView.tintColor = UIColor(red: 78/255.0, green: 221/255.0, blue: 200/255.0, alpha: 1.0)
+        loadingView.tintColor = UIColor(red: 20/255, green: 65/255, blue: 247/255, alpha: 1)
         tableView.dg_addPullToRefreshWithActionHandler({ [weak self] () -> Void in
             // completion to get the result from the CoinMarketCap api request
             CoinMarketCap.getReturnTicker{coinArray, connect in
@@ -55,8 +126,9 @@ class CoinListTableViewController: UITableViewController, UISearchBarDelegate {
                     self?.tableView.dg_stopLoading()
                 }
 
-            }        }, loadingView: loadingView)
-        tableView.dg_setPullToRefreshFillColor(UIColor(red: 57/255.0, green: 67/255.0, blue: 89/255.0, alpha: 1.0))
+            }
+        }, loadingView: loadingView)
+        tableView.dg_setPullToRefreshFillColor(UIColor.lightGray)
         tableView.dg_setPullToRefreshBackgroundColor(tableView.backgroundColor!)
 
         //  creating the search controller
@@ -66,6 +138,7 @@ class CoinListTableViewController: UITableViewController, UISearchBarDelegate {
         //  A Boolean indicating whether the navigation bar should be hidden when searching.
         searchController.hidesNavigationBarDuringPresentation = false
         searchController.searchBar.delegate = self
+        searchController.searchBar.placeholder = "Search for coin"
         
         tableView.tableHeaderView = searchController.searchBar
         
@@ -75,7 +148,7 @@ class CoinListTableViewController: UITableViewController, UISearchBarDelegate {
         // completion to get the result from the poloniex api request
         CoinMarketCap.getReturnTicker{coinArray, connect in
             if connect{
-                self.sharedInstance.showMessage(withTitle: "Data updated", description: "Connected to Internet", type: TWMessageBarMessageType.success)
+                //self.sharedInstance.showMessage(withTitle: "Data updated", description: "Connected to Internet", type: TWMessageBarMessageType.success)
                 self.CoinTableView = coinArray!
                 //self.saveToCoreData(coinArray: self.CoinTableView as! [Coin])
                 //self.fetchCoreData()
@@ -106,6 +179,30 @@ class CoinListTableViewController: UITableViewController, UISearchBarDelegate {
                 self.stopAnimation()
             }
         }
+        
+        self.uicolor()
+    }
+    
+    func uicolor(){
+        searchController.searchBar.backgroundImage = UIImage()
+        searchController.searchBar.searchBarStyle = UISearchBarStyle.minimal
+        searchController.searchBar.layer.borderColor = UIColor.clear.cgColor
+        searchController.searchBar.layer.borderWidth = 1
+        searchController.searchBar.layer.borderColor = UIColor.lightGray.cgColor
+        searchController.searchBar.backgroundColor = UIColor.lightGray
+        //searchController.searchBar.layer.cornerRadius = 15.0
+        if let txfSearchField = searchController.searchBar.value(forKey: "_searchField") as? UITextField {
+            txfSearchField.borderStyle = .none
+            txfSearchField.backgroundColor = .white
+            txfSearchField.borderStyle = .roundedRect
+            //txfSearchField.layer.borderWidth = 1
+            //txfSearchField.layer.cornerRadius = 25.0
+        }
+        
+        navigationController?.navigationBar.barTintColor = UIColor.init(red: 20/255, green: 65/255, blue: 247/255, alpha: 1)
+        navigationController?.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName:UIColor.white]
+        
+        syncButtonOutlet.tintColor = UIColor.white
     }
     
     //  Starting the activity indicator view
@@ -134,14 +231,11 @@ class CoinListTableViewController: UITableViewController, UISearchBarDelegate {
         let coins = NSManagedObject(entity: entity!, insertInto: self.managedContext)
         
         for coin in coinArray {
-            coins.setValue(coin.Id, forKey: "id")
             coins.setValue(coin.ImageUrl, forKey: "imageUrl")
             coins.setValue(coin.Name, forKey: "name")
             coins.setValue(coin.FullName, forKey: "fullName")
-            coins.setValue(coin.BTC, forKey: "btc")
             coins.setValue(coin.EUR, forKey: "eur")
             coins.setValue(coin.USD, forKey: "usd")
-            coins.setValue(coin.SortOrder, forKey: "sortOrder")
             coins.setValue(coin.available_supply, forKey: "availableSupply")
             coins.setValue(coin.total_supply, forKey: "totalSupply")
             coins.setValue(coin.percent_change_1h, forKey: "percentChange1h")
@@ -177,14 +271,13 @@ class CoinListTableViewController: UITableViewController, UISearchBarDelegate {
         for coin in Song{
             CoinTableView.removeAll()
             CoinTableView.append(Coin(
-                Id: coin.value(forKey: "id") as? Int,
+                Rank: coin.value(forKey: "rank") as? Int,
+                Image: nil,
                 ImageUrl: coin.value(forKey: "imageUrl") as? String,
                 Name: coin.value(forKey: "name") as? String,
                 FullName: coin.value(forKey: "fullName") as? String,
-                BTC: coin.value(forKey: "btc") as? Double,
                 EUR: coin.value(forKey: "eur") as? Double,
                 USD: coin.value(forKey: "usd") as? Double,
-                SortOrder: coin.value(forKey: "sortOrder") as? Int,
                 available_supply: coin.value(forKey: "availableSupply") as? Double,
                 total_supply: coin.value(forKey: "totalSupply") as? Double,
                 percent_change_1h: coin.value(forKey: "percentChange1h") as? Double,
@@ -260,13 +353,16 @@ class CoinListTableViewController: UITableViewController, UISearchBarDelegate {
                 //  Set the cell's data
                 let marketCap = expansionCell.viewWithTag(10) as! UILabel
                 marketCap.text = tranformNumber(number: (CoinTableView[parentCellIndex] as! Coin).market_cap_eur!)
+                marketCap.text?.append(" €")
                 
                 let circulatingSupply = expansionCell.viewWithTag(11) as! UILabel
                 //print("circulatingSupply = \((CoinTableView[parentCellIndex] as! Coin).available_supply!)")
                 circulatingSupply.text = tranformNumber(number: (CoinTableView[parentCellIndex] as! Coin).available_supply!)
+                circulatingSupply.text?.append(" \((CoinTableView[parentCellIndex] as! Coin).Name!)")
                 
                 let volume24h = expansionCell.viewWithTag(12) as! UILabel
                 volume24h.text = tranformNumber(number: (CoinTableView[parentCellIndex] as! Coin).h24_volume_eur!)
+                volume24h.text?.append(" €")
                 
                 let h1 = expansionCell.viewWithTag(13) as! UILabel
                 h1.text = tranformNumber(number: (CoinTableView[parentCellIndex] as! Coin).percent_change_1h!)
@@ -286,18 +382,21 @@ class CoinListTableViewController: UITableViewController, UISearchBarDelegate {
                 } else {
                     d7.textColor = UIColor.green
                 }
+                d7.font = UIFont.boldSystemFont(ofSize: 16.0)
                 
                 if h1.text?.characters.first == "-"{
                     h1.textColor = UIColor.red
                 } else {
                     h1.textColor = UIColor.green
                 }
+                h1.font = UIFont.boldSystemFont(ofSize: 16.0)
                 
                 if h24.text?.characters.first == "-"{
                     h24.textColor = UIColor.red
                 } else {
                     h24.textColor = UIColor.green
                 }
+                h24.font = UIFont.boldSystemFont(ofSize: 16.0)
                 
                 return expansionCell
             } else {
@@ -322,17 +421,33 @@ class CoinListTableViewController: UITableViewController, UISearchBarDelegate {
     }
     
     func configureCell(cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell{
-        
         // tag 1 is the coin name in the table view cell
         let coinName = cell.viewWithTag(1) as! UILabel
         coinName.text = (CoinTableView[indexPath.row] as? Coin)?.FullName
-        //print("coinName = \(String(describing: coinName.text))")
         
-        // tag 2 is price of the coin in the table view cell
+        // tag 7 is the coin image in the table view cell
+        if ((CoinTableView[indexPath.row] as? Coin)?.Image) == nil{
+            if let url = (CoinTableView[indexPath.row] as? Coin)?.ImageUrl {
+                if url != "" {
+                    let coinImage = cell.viewWithTag(7) as! UIImageView
+                    if let url = URL.init(string: ((CoinTableView[indexPath.row] as? Coin)?.ImageUrl)!) {
+                        coinImage.downloadedFrom(url: url)
+                    }
+                }
+            }
+        } else {
+            let coinImage = cell.viewWithTag(7) as! UIImageView
+            coinImage.image = (CoinTableView[indexPath.row] as? Coin)?.Image
+        }
+        
+        // tag 2 is the coin number in the table view list
+        let coinNumber = cell.viewWithTag(5) as! UILabel
+        coinNumber.text = String((CoinTableView[indexPath.row] as! Coin).Rank!)
+        
+        // tag 4 is price of the coin in the table view cell
         let priceCoin = cell.viewWithTag(4) as! UILabel
         if (CoinTableView[indexPath.row] as? Coin)?.EUR != nil {
             priceCoin.text = tranformNumber(number: (CoinTableView[indexPath.row] as! Coin).EUR!)
-            
         }
         priceCoin.text?.append("€")
         print("priceCoin.text = \(String(describing: priceCoin.text))")
@@ -357,6 +472,9 @@ class CoinListTableViewController: UITableViewController, UISearchBarDelegate {
             priceCoin.textColor = UIColor.green
             h24Change.textColor = UIColor.green
         }
+        priceCoin.font = UIFont.boldSystemFont(ofSize: 16.0)
+        h24Change.font = UIFont.boldSystemFont(ofSize: 16.0)
+
         return cell
         
         
@@ -430,64 +548,17 @@ class CoinListTableViewController: UITableViewController, UISearchBarDelegate {
     }
     
     func createTitleCell() {
-        self.CoinTableView.insert(Coin(Id: nil, ImageUrl: "", Name: "title", FullName: "", BTC: nil, EUR: nil, USD: nil, SortOrder: nil, available_supply: nil, total_supply: nil, percent_change_1h: nil, percent_change_24h: nil, percent_change_7d: nil, market_cap_eur: nil, market_cap_usd: nil, h24_volume_usd: nil, h24_volume_eur: nil ), at: 0)
+        self.CoinTableView.insert(Coin(Rank: nil, Image: nil, ImageUrl: "", Name: "title", FullName: "", EUR: nil, USD: nil, available_supply: nil, total_supply: nil, percent_change_1h: nil, percent_change_24h: 0, percent_change_7d: nil, market_cap_eur: nil, market_cap_usd: nil, h24_volume_usd: nil, h24_volume_eur: nil ), at: 0)
     }
     
     func tranformNumber(number: Double) -> String{
-        var newString = String(number)
-        let res = String(number).range(of: ".")
-        print("number = \(String(describing: number))")
-        if let range = res {
-            
-            // Start of range of found string.
-            let start = range.lowerBound
-            let length = String(number)[String(number).startIndex..<start].characters.count
-            print("length = \(length)")
-            
-            // Display string starting at first index.
-            print(String(number)[start..<String(number).endIndex])
-            //print(String(number).startIndex)
-            var j = 0
-            var sumup = String(number).startIndex
-            var keepLooping = true
-            var broken = false
-            // Display string before first index.
-            print(String(number)[String(number).startIndex..<start])
-            if String(number)[String(number).startIndex..<start].characters.count > 3{
-                if String(number)[String(number).startIndex..<start].characters.count % 3 == 0{
-                    // number has 3 digits
-                    print("3 digits = \(String(number)[String(number).startIndex..<start].characters)")
-                }else{
-                    // number has more than 3 digits
-                    while keepLooping {
-                        for i in String(number).characters.indices[sumup..<start]
-                        {
-                            print("res : \((length - j)%3) + i : \(i)")
-                            print("at : \(newString[i])")
-                            if (length - j)%(3) == 0 {
-                                newString.insert(",", at: i)
-                                sumup = i
-                                broken = true
-                                break
-                            }else{
-                                broken = false
-                            }
-                            j += 1
-                            sumup = i
-                            broken = false
-                        }
-                        if broken  {
-                            keepLooping = false
-                        }
-                        
-                    }
-                    
-                    
-                    
-                }
-            }
-        }
-        return newString
+        let largeNumber = number
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = NumberFormatter.Style.decimal
+        numberFormatter.maximumFractionDigits = 5
+        numberFormatter.minimumFractionDigits = 1
+        let formattedNumber = numberFormatter.string(from: NSNumber(value:largeNumber))
+        return formattedNumber!
     }
     
     /*

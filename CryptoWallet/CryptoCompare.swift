@@ -22,9 +22,9 @@
         case HistoDay = "https://min-api.cryptocompare.com/data/histoday?"
     }
     
-    class func getCoinList(completion: @escaping ([Coin]?, Bool) -> Void) {
+    class func getUrlImage(ListCoin: [Coin], completion: @escaping ([Coin]?, Bool) -> Void) {
         let url:String = Data.CoinList.rawValue
-        var arrayCoin = [Coin]()
+        
         DispatchQueue.global(qos: .userInteractive).async {
             Alamofire.request(url).validate().responseJSON { (response) in
                 switch response.result {
@@ -38,66 +38,41 @@
                         arrayJsonCoin.append(subJson)
                     }
                     
-                    for coin in arrayJsonCoin{
-                        arrayCoin.append(self.parseDatagetCoinList(obj: coin))
+                    var found = false
+                    for item2 in ListCoin {
+                        for item in arrayJsonCoin {
+                            if item["Name"].stringValue == item2.Name {
+                                item2.ImageUrl = "https://www.cryptocompare.com" + item["ImageUrl"].stringValue
+                                found = true
+                                break
+                            }
+                        }
+                        if !found {
+                            item2.Image = UIImage(named: "DefaultCoin")
+                        }
+                        found = false
                     }
                     
-                    // The order we rank the coin inside our internal system
-                    completion(arrayCoin.sorted{ $0.SortOrder! < $1.SortOrder! }, response.result.isSuccess)
+                    completion(ListCoin, response.result.isSuccess)
                     
-                //return nil
                 case .failure(let error):
                     
                     print("erreur = \(error)")
-                    completion(nil,  response.result.isSuccess)
+                    completion(nil,  response.result.isFailure)
                 }
             }
         }
     }
     
-    /*class func getUrlImage(Name: String, completion: @escaping (String, Bool) -> Void) {
-        let url:String = Data.CoinList.rawValue
-        var arrayCoin = String()
-        DispatchQueue.global(qos: .userInteractive).async {
-            Alamofire.request(url).validate().responseJSON { (response) in
-                switch response.result {
-                case .success(let value):
-                    
-                    let json = JSON(value)
-                    let data = json["Data"]
-                    var arrayJsonCoin = [JSON]()
-                    
-                    for (_,subJson):(String, JSON) in data {
-                        arrayJsonCoin.append(subJson)
-                    }
-                    
-                    for coin in arrayJsonCoin{
-                        arrayCoin.append(self.parseDatagetCoinList(obj: coin))
-                    }
-                    
-                    // The order we rank the coin inside our internal system
-                    completion(arrayCoin.sorted{ $0.SortOrder! < $1.SortOrder! }, response.result.isSuccess)
-                    
-                //return nil
-                case .failure(let error):
-                    
-                    print("erreur = \(error)")
-                    completion(nil,  response.result.isSuccess)
-                }
-            }
-        }
-    }*/
-    
     class func parseDatagetCoinList(obj: JSON) -> Coin{
         return Coin(
-            Id : obj["Id"].intValue,
+            Rank : obj["Id"].intValue,
+            Image: nil,
             ImageUrl : obj["ImageUrl"].stringValue,
             Name : obj["Name"].stringValue,
             FullName : obj["FullName"].stringValue,
-            BTC : nil,
             EUR : nil,
             USD : nil,
-            SortOrder: obj["SortOrder"].intValue,
             available_supply: nil,
             total_supply : nil,
             percent_change_1h : nil,
@@ -113,7 +88,7 @@
         )
     }
     
-    class func getCoinPrice(fsym: String ,tsyms: [String] ,completion: @escaping (Coin?, Bool) -> Void) {
+    /*class func getCoinPrice(fsym: String ,tsyms: [String] ,completion: @escaping (Coin?, Bool) -> Void) {
         var url:String = Data.Price.rawValue
         url += "fsyms=" + fsym + "&tsyms="
         for i in 0 ..< tsyms.count  {
@@ -163,5 +138,5 @@
                 }
             }
         }
-    }
+    }*/
 }

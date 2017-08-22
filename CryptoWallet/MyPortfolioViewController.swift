@@ -24,10 +24,19 @@ class MyPortfolioViewController: UIViewController {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
+        initLabels()
+    }
+    
+    func initLabels(){
         TitleTotalCoestLabel.text = "TOTAL COST"
         TitleTotalProfitLabel.text = "TOTAL PROFIT"
         TitleCurrentPortfolioValueLabel.text = "CURRENT PORTFOLIO VALUE"
         TitleTotalPercentageProfitLabel.text = "TOTAL % PROFIT"
+        
+        TitleTotalCoestLabel.font = TitleTotalCoestLabel.font.withSize(12.0)
+        TitleTotalProfitLabel.font =  TitleTotalProfitLabel.font.withSize(12.0)
+        TitleCurrentPortfolioValueLabel.font = TitleCurrentPortfolioValueLabel.font.withSize(12.0)
+        TitleTotalPercentageProfitLabel.font = TitleTotalPercentageProfitLabel.font.withSize(12.0)
     }
 
     /*
