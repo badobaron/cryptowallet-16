@@ -39,7 +39,7 @@ class AddTransactionTableViewController: UITableViewController, UISearchBarDeleg
         startAnimation()
         
         // completion to get the result from the poloniex api request
-        CoinMarketCap.getReturnTicker{coinArray, connect in
+        CoinMarketCap.getReturnTicker(first: false){coinArray, connect in
             if connect{
                 self.CoinTableView = coinArray!
                 self.currentTableView = self.CoinTableView as! [Coin]

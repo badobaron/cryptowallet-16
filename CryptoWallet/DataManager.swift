@@ -20,7 +20,7 @@ class DataManager : NSObject {
         if let modelURL = Bundle.main.url(forResource: "CryptoWallet", withExtension: "momd") {
             if let model = NSManagedObjectModel(contentsOf: modelURL) {
                 
-                if let storageURL = FileManager.documentURL(childPath: "MyDatabase3.db") {
+                if let storageURL = FileManager.documentURL(childPath: "MyDatabase31.db") {
                     let storeCoordinator = NSPersistentStoreCoordinator(managedObjectModel: model)
                     _ = try? storeCoordinator.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: storageURL, options: nil)
                     
@@ -28,11 +28,7 @@ class DataManager : NSObject {
                     context.persistentStoreCoordinator = storeCoordinator
                     self.objectContext = context
                 }
-                
             }
-            
         }
-        
     }
-    
 }

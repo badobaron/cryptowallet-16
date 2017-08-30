@@ -11,8 +11,12 @@ import Alamofire
 import SwiftyJSON
 
 class CoinMarketCap: NSObject{
-    
-    class func getReturnTicker(completion: @escaping ([Coin]?, Bool) -> Void) {
+    // first is false when we reload the data, true otherwise
+    // TODO : in coinMarketCap check if number in CoinTableView is the same as number of coin returned through API
+    // add in parameter the cointableview
+    // if first == true, reload photo because new coin to add
+    // else first = false
+    class func getReturnTicker(first: Bool,completion: @escaping ([Coin]?, Bool) -> Void) {
         let url = "https://api.coinmarketcap.com/v1/ticker/?convert=EUR"
         var arrayCoin = [Coin]()
         DispatchQueue.global(qos: .userInteractive).async {
@@ -31,7 +35,17 @@ class CoinMarketCap: NSObject{
                         arrayCoin.append(self.parseData(obj: coin))
                     }
                     
-                    completion(arrayCoin, response.result.isSuccess)
+                    if first {
+                        CryptoCompare.getUrlImage(ListCoin: arrayCoin , completion: { newListCoin, connect in
+                            if connect {
+                                completion(newListCoin, response.result.isSuccess)
+                            } else {
+                                completion(nil,  response.result.isSuccess)
+                            }
+                        })
+                    } else {
+                        completion(arrayCoin, response.result.isSuccess)
+                    }
                     
                 //return nil
                 case .failure(let error):

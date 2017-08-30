@@ -9,7 +9,7 @@
 import UIKit
 
 extension UIImageView {
-    func downloadedFrom(url: URL, contentMode mode: UIViewContentMode = .scaleAspectFit) {
+    func downloadedFrom(url: URL, contentMode mode: UIViewContentMode = .scaleAspectFit, row: Int, CoinTable: [Coin], completion: @escaping ([Coin]?) -> Void) {
         contentMode = mode
         URLSession.shared.dataTask(with: url) { (data, response, error) in
             guard let httpURLResponse = response as? HTTPURLResponse, httpURLResponse.statusCode == 200,
@@ -20,10 +20,8 @@ extension UIImageView {
             DispatchQueue.main.async() { () -> Void in
                 self.image = image
             }
-            }.resume()
-    }
-    func downloadedFrom(link: String, contentMode mode: UIViewContentMode = .scaleAspectFit) {
-        guard let url = URL(string: link) else { return }
-        downloadedFrom(url: url, contentMode: mode)
+            CoinTable[row].Image = image
+            completion(CoinTable)
+        }.resume()
     }
 }

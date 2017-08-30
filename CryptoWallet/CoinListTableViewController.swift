@@ -19,22 +19,6 @@ class CoinListTableViewController: UITableViewController, UISearchBarDelegate {
     var sharedInstance = TWMessageBarManager()
     let managedContext = DataManager().objectContext
     var Song = [NSManagedObject]()
-    @IBOutlet weak var syncButtonOutlet: UIBarButtonItem!
-    
-    @IBAction func syncImagesCoinAction(_ sender: UIBarButtonItem) {
-        currentTableView = CoinTableView
-        currentTableView.remove(at: 0)
-        self.startAnimation()
-        CryptoCompare.getUrlImage(ListCoin: currentTableView as! [Coin], completion: { newListCoin, connect in
-            if connect {
-                self.CoinTableView = newListCoin!
-                self.createTitleCell()
-                self.stopAnimation()
-                self.tableView.reloadData()
-            }
-        })
-    }
-    
     //  activity indicator view
     weak var activityIndicatorView: UIActivityIndicatorView!
     
@@ -89,17 +73,12 @@ class CoinListTableViewController: UITableViewController, UISearchBarDelegate {
         self.tableView.reloadData()
     }
     
-    
-    
-    
     deinit {
         tableView.dg_removePullToRefresh()
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        
         
         //  creating activity indicator view
         let activityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.gray)
@@ -111,18 +90,28 @@ class CoinListTableViewController: UITableViewController, UISearchBarDelegate {
         loadingView.tintColor = UIColor(red: 20/255, green: 65/255, blue: 247/255, alpha: 1)
         tableView.dg_addPullToRefreshWithActionHandler({ [weak self] () -> Void in
             // completion to get the result from the CoinMarketCap api request
-            CoinMarketCap.getReturnTicker{coinArray, connect in
+            CoinMarketCap.getReturnTicker(first: false){coinArray, connect in
                 if connect{
-                    self?.CoinTableView = coinArray!
-                    //self?.saveToCoreData(coinArray: self?.CoinTableView as! [Coin])
-                    //self?.fetchCoreData()
-                    self?.createTitleCell()
-                    self?.currentTableView = self?.CoinTableView as! [Coin]
+                    for item in coinArray!{
+                        for item2 in self?.CoinTableView as! [Coin] {
+                            if item.Name == item2.Name {
+                                item2.EUR = item.EUR
+                                item2.available_supply = item.available_supply
+                                item2.h24_volume_eur = item.h24_volume_eur
+                                item2.market_cap_eur = item.market_cap_eur
+                                item2.percent_change_1h = item.percent_change_1h
+                                item2.percent_change_24h = item.percent_change_24h
+                                item2.percent_change_7d = item.percent_change_7d
+                                item2.total_supply = item.total_supply
+                            }
+                        }
+                    }
+                    self?.saveOrUpdateCoreData(coinArray: self?.CoinTableView as! [Coin])
                     self?.tableView.reloadData()
                     self?.tableView.dg_stopLoading()
                 }else{
-                    self?.sharedInstance.showMessage(withTitle: "No internet connection", description: "Previous data displayed", type: TWMessageBarMessageType.error)
-                    // TODO CoreData here
+                    self?.fetchOrEmptyCoreData()
+                    self?.tableView.reloadData()
                     self?.tableView.dg_stopLoading()
                 }
 
@@ -146,36 +135,16 @@ class CoinListTableViewController: UITableViewController, UISearchBarDelegate {
         startAnimation()
         
         // completion to get the result from the poloniex api request
-        CoinMarketCap.getReturnTicker{coinArray, connect in
+        CoinMarketCap.getReturnTicker(first: true){coinArray, connect in
             if connect{
                 //self.sharedInstance.showMessage(withTitle: "Data updated", description: "Connected to Internet", type: TWMessageBarMessageType.success)
                 self.CoinTableView = coinArray!
-                //self.saveToCoreData(coinArray: self.CoinTableView as! [Coin])
-                //self.fetchCoreData()
-                // get price from each currency
-                //for item in self.CoinTableView as! [Coin]{
-                    //print("item name = \(item.Name)")
-                    /*CryptoCompare.getCoinPrice(fsym: item.Name!, tsyms: ["EUR"]){coin, connect in
-                        if connect{
-                            
-                            if (coin?.EUR) != nil && (coin?.percent_change_24h) != nil {
-                                print("coin = \(String(describing: coin?.EUR!))")
-                                item.EUR = coin?.EUR!
-                                item.percent_change_24h = coin?.percent_change_24h!
-                            }
-                            
-                            self.tableView.reloadData()
-                        }
-                    }*/
-                //}
-                
-                // here i add a new coin that represents the title cell
-                self.createTitleCell()
-                self.currentTableView = self.CoinTableView as! [Coin]
+                self.saveOrUpdateCoreData(coinArray: self.CoinTableView as! [Coin])
                 self.stopAnimation()
                 self.tableView.reloadData()
             }else{
-                self.sharedInstance.showMessage(withTitle: "Data Not updated", description: "No internet connection", type: TWMessageBarMessageType.error)
+                self.fetchOrEmptyCoreData()
+                self.tableView.reloadData()
                 self.stopAnimation()
             }
         }
@@ -201,9 +170,11 @@ class CoinListTableViewController: UITableViewController, UISearchBarDelegate {
         
         navigationController?.navigationBar.barTintColor = UIColor.init(red: 20/255, green: 65/255, blue: 247/255, alpha: 1)
         navigationController?.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName:UIColor.white]
-        
-        syncButtonOutlet.tintColor = UIColor.white
     }
+    
+    /*******************
+     - indicator view function
+     *******************/
     
     //  Starting the activity indicator view
     func startAnimation() {
@@ -218,19 +189,43 @@ class CoinListTableViewController: UITableViewController, UISearchBarDelegate {
         activityIndicatorView.stopAnimating()
     }
     
-    /*func clearCoreData(){
-        let fetch = NSFetchRequest<NSFetchRequestResult>(entityName: "Coins")
-        let request = NSBatchDeleteRequest(fetchRequest: fetch)
-        
-    }*/
     
-    func saveToCoreData(coinArray: [Coin]){
-        print("count coinArray = \(coinArray.count)")
-
+    /*******************
+     - Core data
+     *******************/
+    
+    func saveOrUpdateCoreData(coinArray: [Coin]) {
+        self.deleteTiteCell()
+        if isCoreDataEmpty() {
+            self.saveToCoreData()
+        } else {
+            //self.clearCoreData() // TODO : do not clear images
+            self.updateCoreData(coinArray: coinArray)
+        }
+        self.createTitleCell()
+    }
+    
+    func fetchOrEmptyCoreData() {
+        if !isCoreDataEmpty() {
+            self.sharedInstance.showMessage(withTitle: "No internet connection", description: "Previous data displayed", type: TWMessageBarMessageType.error)
+            self.deleteTiteCell()
+            self.fetchCoreData()
+            self.createTitleCell()
+        } else {
+            self.sharedInstance.showMessage(withTitle: "No internet connection", description: "No data previously saved", type: TWMessageBarMessageType.error)
+        }
+    }
+    
+    func saveToCoreData(){
         let entity =  NSEntityDescription.entity(forEntityName: "Coins", in:self.managedContext!)
-        let coins = NSManagedObject(entity: entity!, insertInto: self.managedContext)
         
-        for coin in coinArray {
+        for coin in CoinTableView as! [Coin] {
+            let coins = NSManagedObject(entity: entity!, insertInto: self.managedContext)
+            var newImageData =  Data()
+            if let image = coin.Image {
+                 newImageData = UIImagePNGRepresentation(image)!
+            }
+           
             coins.setValue(coin.ImageUrl, forKey: "imageUrl")
             coins.setValue(coin.Name, forKey: "name")
             coins.setValue(coin.FullName, forKey: "fullName")
@@ -245,13 +240,34 @@ class CoinListTableViewController: UITableViewController, UISearchBarDelegate {
             coins.setValue(coin.market_cap_usd, forKey: "marketCapUsd")
             coins.setValue(coin.h24_volume_usd, forKey: "h24VolumeUsd")
             coins.setValue(coin.h24_volume_eur, forKey: "h24VolumeEur")
-            
+            coins.setValue(newImageData, forKey: "image")
+            coins.setValue(coin.Rank, forKey: "rank")
             do {
                 try self.managedContext?.save()
                 print("self.managedContext?.save = \(coins)")
             } catch let error as NSError  {
                 print("Could not save \(error), \(error.userInfo)")
             }
+        }
+        currentTableView = CoinTableView as! [Coin]
+        print("count = \(CoinTableView.count)")
+    }
+    
+    func isCoreDataEmpty() -> Bool {
+        // fetching all the songs from CoreData
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Coins")
+        
+        do {
+            let songs = try managedContext?.fetch(fetchRequest)
+            Song = songs as! [NSManagedObject]
+        } catch let error as NSError {
+            print("Could not fetch \(error), \(error.userInfo)")
+        }
+        
+        if Song.count > 0 {
+            return false
+        } else {
+            return true
         }
     }
     
@@ -265,14 +281,22 @@ class CoinListTableViewController: UITableViewController, UISearchBarDelegate {
         } catch let error as NSError {
             print("Could not fetch \(error), \(error.userInfo)")
         }
-        print("1")
-        print("countSong = \(Song.count)")
-
+        
+        CoinTableView.removeAll()
         for coin in Song{
-            CoinTableView.removeAll()
+            var decodedImage = UIImage()
+            let image = coin.value(forKey: "image") as? Data
+            if !(image!.isEmpty) {
+                print(coin.value(forKey: "name")!)
+                decodedImage = UIImage(data: coin.value(forKey: "image") as! Data)!
+                print("--")
+            } else {
+                decodedImage = UIImage(named: "DefaultCoin")!
+            }
+            
             CoinTableView.append(Coin(
                 Rank: coin.value(forKey: "rank") as? Int,
-                Image: nil,
+                Image: decodedImage,
                 ImageUrl: coin.value(forKey: "imageUrl") as? String,
                 Name: coin.value(forKey: "name") as? String,
                 FullName: coin.value(forKey: "fullName") as? String,
@@ -289,10 +313,110 @@ class CoinListTableViewController: UITableViewController, UISearchBarDelegate {
                 h24_volume_eur: coin.value(forKey: "h24VolumeEur") as? Double
             ))
         }
-        print("count = \(CoinTableView.count)")
+        currentTableView = CoinTableView as! [Coin]
+    }
+    
+    func clearCoreData(){
+        
+        let context = self.managedContext!
+        
+        //create a fetch request, telling it about the entity
+        let fetchRequest: NSFetchRequest<Coins> = Coins.fetchRequest()
+            
+        do {
+            //go get the results
+            let array_users = try self.managedContext!.fetch(fetchRequest)
+                
+            //You need to convert to NSManagedObject to use 'for' loops
+            for user in array_users as [NSManagedObject] {
+                //get the Key Value pairs (although there may be a better way to do that...
+                context.delete(user)
+            }
+            
+            //save the context
+            do {
+                try context.save()
+                print("saved!")
+            } catch let error as NSError  {
+                print("Could not save \(error), \(error.userInfo)")
+            } catch {
+                    
+            }
+                
+        } catch {
+            print("Error with request: \(error)")
+        }
+    
+    }
+    
+    func updateCoreData(coinArray: [Coin]){
+        var isPresent = false
+        if coinArray.count > CoinTableView.count {
+            for item in coinArray {
+                for item2 in CoinTableView as! [Coin] {
+                    if item.Name == item2.Name {
+                        isPresent = true
+                    }
+                }
+                if isPresent {
+                    CoinTableView.append(item)
+                }
+                isPresent = false
+            }
+        }
+        
+        let context = self.managedContext!
+        let fetchRequest: NSFetchRequest<Coins> = Coins.fetchRequest()
+        
+        do {
+            let array_coins = try self.managedContext!.fetch(fetchRequest)
+            
+            for coins in array_coins {
+                for item in CoinTableView as! [Coin] {
+                    if coins.name == item.Name {
+                        coins.setValue(item.ImageUrl, forKey: "imageUrl")
+                        coins.setValue(item.Name, forKey: "name")
+                        coins.setValue(item.FullName, forKey: "fullName")
+                        coins.setValue(item.EUR, forKey: "eur")
+                        coins.setValue(item.USD, forKey: "usd")
+                        coins.setValue(item.available_supply, forKey: "availableSupply")
+                        coins.setValue(item.total_supply, forKey: "totalSupply")
+                        coins.setValue(item.percent_change_1h, forKey: "percentChange1h")
+                        coins.setValue(item.percent_change_24h, forKey: "percentChange24h")
+                        coins.setValue(item.percent_change_7d, forKey: "percentChange7d")
+                        coins.setValue(item.market_cap_eur, forKey: "marketCapEur")
+                        coins.setValue(item.market_cap_usd, forKey: "marketCapUsd")
+                        coins.setValue(item.h24_volume_usd, forKey: "h24VolumeUsd")
+                        coins.setValue(item.h24_volume_eur, forKey: "h24VolumeEur")
+                        coins.setValue(item.Rank, forKey: "rank")
+                        var newImageData =  Data()
+                        if let image = item.Image {
+                            newImageData = UIImagePNGRepresentation(image)!
+                            coins.setValue(newImageData, forKey: "image")
+                        }
+                        
+                        //save the context
+                        do {
+                            try context.save()
+                            print("saved!")
+                        } catch let error as NSError  {
+                            print("Could not save \(error), \(error.userInfo)")
+                        } catch {
+                            
+                        }
+                    }
+                }
+            }
+        } catch {
+            print("Error with request: \(error)")
+        }
+        currentTableView = CoinTableView as! [Coin]
+        print("update count = \(CoinTableView.count)")
     }
 
-    // MARK: - Table view data source
+    /*******************
+        - Table view data source
+     *******************/
 
     override func numberOfSections(in tableView: UITableView) -> Int {
         // #warning Incomplete implementation, return the number of sections
@@ -405,81 +529,6 @@ class CoinListTableViewController: UITableViewController, UISearchBarDelegate {
         }
     }
     
-        
-    /*  Get parent cell for selected ExpansionCell  */
-    private func getParentCellIndex(expansionIndex: Int) -> Int {
-        
-        var selectedCell: Coin?
-        var selectedCellIndex = expansionIndex
-        
-        while(selectedCell == nil && selectedCellIndex >= 1) {
-            selectedCellIndex -= 1
-            selectedCell = CoinTableView[selectedCellIndex] as? Coin
-        }
-        
-        return selectedCellIndex
-    }
-    
-    func configureCell(cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell{
-        // tag 1 is the coin name in the table view cell
-        let coinName = cell.viewWithTag(1) as! UILabel
-        coinName.text = (CoinTableView[indexPath.row] as? Coin)?.FullName
-        
-        // tag 7 is the coin image in the table view cell
-        if ((CoinTableView[indexPath.row] as? Coin)?.Image) == nil{
-            if let url = (CoinTableView[indexPath.row] as? Coin)?.ImageUrl {
-                if url != "" {
-                    let coinImage = cell.viewWithTag(7) as! UIImageView
-                    if let url = URL.init(string: ((CoinTableView[indexPath.row] as? Coin)?.ImageUrl)!) {
-                        coinImage.downloadedFrom(url: url)
-                    }
-                }
-            }
-        } else {
-            let coinImage = cell.viewWithTag(7) as! UIImageView
-            coinImage.image = (CoinTableView[indexPath.row] as? Coin)?.Image
-        }
-        
-        // tag 2 is the coin number in the table view list
-        let coinNumber = cell.viewWithTag(5) as! UILabel
-        coinNumber.text = String((CoinTableView[indexPath.row] as! Coin).Rank!)
-        
-        // tag 4 is price of the coin in the table view cell
-        let priceCoin = cell.viewWithTag(4) as! UILabel
-        if (CoinTableView[indexPath.row] as? Coin)?.EUR != nil {
-            priceCoin.text = tranformNumber(number: (CoinTableView[indexPath.row] as! Coin).EUR!)
-        }
-        priceCoin.text?.append("€")
-        print("priceCoin.text = \(String(describing: priceCoin.text))")
-        // tag 3 is the 24h change in the table view cell
-        let h24Change = cell.viewWithTag(3) as! UILabel
-        if (CoinTableView[indexPath.row] as? Coin)?.percent_change_24h != nil {
-            h24Change.text = tranformNumber(number: (CoinTableView[indexPath.row] as! Coin).percent_change_24h!)
-        }
-        //print("h24Change = \(String(describing: h24Change.text))")
-        h24Change.text?.append("%")
-        
-        // TODO : add image
-        // tag 1 is the coin name in the table view cell
-        //var coinImage = cell.viewWithTag(8) as! UIImage
-        //coinImage.imageView.image = UIImage(named: (CoinTableView[indexPath.row] as! Coin).ImageUrl)
-        
-        // color green for + and red for -
-        if h24Change.text?.characters.first == "-"{
-            priceCoin.textColor = UIColor.red
-            h24Change.textColor = UIColor.red
-        } else {
-            priceCoin.textColor = UIColor.green
-            h24Change.textColor = UIColor.green
-        }
-        priceCoin.font = UIFont.boldSystemFont(ofSize: 16.0)
-        h24Change.font = UIFont.boldSystemFont(ofSize: 16.0)
-
-        return cell
-        
-        
-    }
-    
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selectedCell:UITableViewCell = tableView.cellForRow(at: indexPath)!
         selectedCell.contentView.backgroundColor = UIColor.white
@@ -507,6 +556,87 @@ class CoinListTableViewController: UITableViewController, UISearchBarDelegate {
         }
     }
     
+    func configureCell(cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell{
+        // tag 1 is the coin name in the table view cell
+        let coinName = cell.viewWithTag(1) as! UILabel
+        coinName.text = (CoinTableView[indexPath.row] as? Coin)?.FullName
+        
+        // tag 7 is the coin image in the table view cell
+        if ((CoinTableView[indexPath.row] as? Coin)?.Image) == nil{
+            if let url = (CoinTableView[indexPath.row] as? Coin)?.ImageUrl {
+                if url != "" {
+                    let coinImage = cell.viewWithTag(7) as! UIImageView
+                    if let url = URL.init(string: ((CoinTableView[indexPath.row] as? Coin)?.ImageUrl)!) {
+                        coinImage.downloadedFrom(url: url, row: indexPath.row, CoinTable: CoinTableView as! [Coin]){ coinArray in
+                            self.currentTableView = coinArray!
+                            self.CoinTableView = self.currentTableView
+                        }
+                    }
+                }
+            }
+        } else {
+            let coinImage = cell.viewWithTag(7) as! UIImageView
+            coinImage.image = (CoinTableView[indexPath.row] as? Coin)?.Image
+        }
+        
+        // tag 2 is the coin number in the table view list
+        let coinNumber = cell.viewWithTag(5) as! UILabel
+        coinNumber.text = String((CoinTableView[indexPath.row] as! Coin).Rank!)
+        
+        // tag 4 is price of the coin in the table view cell
+        let priceCoin = cell.viewWithTag(4) as! UILabel
+        if (CoinTableView[indexPath.row] as? Coin)?.EUR != nil {
+            priceCoin.text = tranformNumber(number: (CoinTableView[indexPath.row] as! Coin).EUR!)
+        }
+        priceCoin.text?.append("€")
+        
+        // tag 3 is the 24h change in the table view cell
+        let h24Change = cell.viewWithTag(3) as! UILabel
+        if (CoinTableView[indexPath.row] as? Coin)?.percent_change_24h != nil {
+            h24Change.text = tranformNumber(number: (CoinTableView[indexPath.row] as! Coin).percent_change_24h!)
+        }
+        //print("h24Change = \(String(describing: h24Change.text))")
+        h24Change.text?.append("%")
+        
+        // TODO : add image
+        // tag 1 is the coin name in the table view cell
+        //var coinImage = cell.viewWithTag(8) as! UIImage
+        //coinImage.imageView.image = UIImage(named: (CoinTableView[indexPath.row] as! Coin).ImageUrl)
+        
+        // color green for + and red for -
+        if h24Change.text?.characters.first == "-"{
+            priceCoin.textColor = UIColor.red
+            h24Change.textColor = UIColor.red
+        } else {
+            priceCoin.textColor = UIColor.green
+            h24Change.textColor = UIColor.green
+        }
+        priceCoin.font = UIFont.boldSystemFont(ofSize: 16.0)
+        h24Change.font = UIFont.boldSystemFont(ofSize: 16.0)
+        
+        return cell
+        
+        
+    }
+    
+    /*******************
+     - Cell Expand and Contract
+     *******************/
+    
+    /*  Get parent cell for selected ExpansionCell  */
+    private func getParentCellIndex(expansionIndex: Int) -> Int {
+        
+        var selectedCell: Coin?
+        var selectedCellIndex = expansionIndex
+        
+        while(selectedCell == nil && selectedCellIndex >= 1) {
+            selectedCellIndex -= 1
+            selectedCell = CoinTableView[selectedCellIndex] as? Coin
+        }
+        
+        return selectedCellIndex
+    }
+    
     private func expandCell(tableView: UITableView, index: Int) {
         CoinTableView.insert(nil, at: index + 1)
         tableView.insertRows(at: [NSIndexPath(row: index + 1, section: 0) as IndexPath] , with: .top)
@@ -517,7 +647,9 @@ class CoinListTableViewController: UITableViewController, UISearchBarDelegate {
         tableView.deleteRows(at: [NSIndexPath(row: index+1, section: 0) as IndexPath], with: .top)
     }
     
-    // Research
+    /*******************
+        SEARCH BAR
+     *******************/
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         
         CoinTableView = currentTableView
@@ -544,11 +676,26 @@ class CoinListTableViewController: UITableViewController, UISearchBarDelegate {
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         CoinTableView = currentTableView
+        self.createTitleCell()
         self.tableView.reloadData()
     }
     
+    /*******************
+     - help function
+     *******************/
+    
     func createTitleCell() {
-        self.CoinTableView.insert(Coin(Rank: nil, Image: nil, ImageUrl: "", Name: "title", FullName: "", EUR: nil, USD: nil, available_supply: nil, total_supply: nil, percent_change_1h: nil, percent_change_24h: 0, percent_change_7d: nil, market_cap_eur: nil, market_cap_usd: nil, h24_volume_usd: nil, h24_volume_eur: nil ), at: 0)
+        if (self.CoinTableView as! [Coin])[0].Name != "title" {
+            self.CoinTableView.insert(Coin(Rank: nil, Image: nil, ImageUrl: "", Name: "title", FullName: "", EUR: nil, USD: nil, available_supply: nil, total_supply: nil, percent_change_1h: nil, percent_change_24h: 0, percent_change_7d: nil, market_cap_eur: nil, market_cap_usd: nil, h24_volume_usd: nil, h24_volume_eur: nil ), at: 0)
+        }
+    }
+    
+    func deleteTiteCell() {
+        if (self.CoinTableView as! [Coin]).count < 0 {
+            if (self.CoinTableView as! [Coin])[0].Name != "title" {
+                self.CoinTableView.remove(at: 0)
+            }
+        }
     }
     
     func tranformNumber(number: Double) -> String{
@@ -560,50 +707,5 @@ class CoinListTableViewController: UITableViewController, UISearchBarDelegate {
         let formattedNumber = numberFormatter.string(from: NSNumber(value:largeNumber))
         return formattedNumber!
     }
-    
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
-    }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            // Delete the row from the data source
-            tableView.deleteRows(at: [indexPath], with: .fade)
-        } else if editingStyle == .insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
     
 }

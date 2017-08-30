@@ -288,17 +288,7 @@
                             <outlet property="delegate" destination="Sxz-L6-HLs" id="CCo-1w-z8P"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Coin Market Cap" id="6gH-Zd-VXu">
-                        <barButtonItem key="rightBarButtonItem" title="SYNC" id="Ez9-cT-tTW">
-                            <color key="tintColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                            <connections>
-                                <action selector="syncImagesCoinAction:" destination="Sxz-L6-HLs" id="QQS-uz-RxC"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
-                    <connections>
-                        <outlet property="syncButtonOutlet" destination="Ez9-cT-tTW" id="e04-5q-71X"/>
-                    </connections>
+                    <navigationItem key="navigationItem" title="Coin Market Cap" id="6gH-Zd-VXu"/>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Qa4-HS-i8p" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
